@@ -14,6 +14,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1632432234",
+    "@mediapipe/control_utils": "^0.6.1629159505",
+    "@mediapipe/drawing_utils": "^0.3.1620248257",
+    "@mediapipe/hands": "^0.4.1635986972",
     "axios": "^0.24.0",
     "three": "^0.128.0",
     "vue": "^2.5.2",
