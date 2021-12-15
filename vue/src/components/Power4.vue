@@ -2,53 +2,70 @@
   <div id="all">
     <h1>Puissance 4</h1>
     <p id="message" class="messageFinal"></p>
+    <div id="player">
+      <p v-if="1 === this.playerName">
+        Tour du joueur {{ this.playerName }}:
+        <font-awesome-icon icon="circle" style="color: red" />
+      </p>
+      <p v-else>
+        Tour du joueur {{ this.playerName }}:
+        <font-awesome-icon icon="circle" style="color: yellow" />
+      </p>
+    </div>
+    <button id="8" v-on:click="optionIA(true)" class="buttonClass">
+      JOUEUR VS IA
+    </button>
+    <button id="7" v-on:click="optionIA(false)" class="buttonClass">
+      JOUEUR VS JOUEUR
+    </button>
+
     <div id="container">
       <button
         id="0"
         v-on:click="colorForPlayer(0, findLineToColor(0))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="1"
         v-on:click="colorForPlayer(1, findLineToColor(1))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="2"
         v-on:click="colorForPlayer(2, findLineToColor(2))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="3"
         v-on:click="colorForPlayer(3, findLineToColor(3))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="4"
         v-on:click="colorForPlayer(4, findLineToColor(4))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="5"
         v-on:click="colorForPlayer(5, findLineToColor(5))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="6"
         v-on:click="colorForPlayer(6, findLineToColor(6))"
-        class="buttonClass"
+        class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
@@ -70,6 +87,8 @@ export default {
       allCasesNumber: 0,
       plateauJeu: [],
       playerName: 1, //1 = rouge 2 = jaune 0 = vide
+      optionIa: undefined,
+      playerColor: undefined,
     };
   },
   methods: {
@@ -123,6 +142,19 @@ export default {
       //algo
 
       console.log(this.tabWithColorCases);
+    },
+    optionIA(optionIA) {
+      this.optionIa = optionIA;
+      document.getElementById("0").style.visibility = "visible";
+      document.getElementById("1").style.visibility = "visible";
+      document.getElementById("2").style.visibility = "visible";
+      document.getElementById("3").style.visibility = "visible";
+      document.getElementById("4").style.visibility = "visible";
+      document.getElementById("5").style.visibility = "visible";
+      document.getElementById("6").style.visibility = "visible";
+      document.getElementById("7").style.visibility = "hidden";
+      document.getElementById("8").style.visibility = "hidden";
+       document.getElementById("player").style.visibility = "visible";
     },
     isWine(playerName) {
       //check colonne
@@ -226,9 +258,16 @@ export default {
         let message = isWine
           ? "Joueur " + this.playerName + " Vous avez gagnez !"
           : "Oups ! Match nul...";
+          document.getElementById("player").style.visibility = "hidden";
         document.getElementById("message").innerHTML = message;
       }
       this.playerName = this.playerName === 1 ? 2 : 1;
+      this.playerColor =
+        this.playerName === 1 ? "color: Tomato" : "color: Tomato";
+      if (this.optionIa) {
+        console.log("option IA");
+        this.algoForIA();
+      }
     },
     // algoForIA(tabWithColorCases, playerName) {
     //   console.log("Algo");
@@ -272,8 +311,14 @@ export default {
   background-color: white;
   padding: 10px;
 }
+.buttonPlayClass {
+  visibility: hidden;
+}
 .messageFinal {
   font-size: 20px;
   color: red;
+}
+#player {
+  visibility: hidden;
 }
 </style>
