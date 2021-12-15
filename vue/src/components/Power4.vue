@@ -5,49 +5,49 @@
     <div id="container">
       <button
         id="0"
-        v-on:click="colorForPlayer(0, findLineToColor(0), 1)"
+        v-on:click="colorForPlayer(0, findLineToColor(0))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="1"
-        v-on:click="colorForPlayer(1, findLineToColor(1), 1)"
+        v-on:click="colorForPlayer(1, findLineToColor(1))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="2"
-        v-on:click="colorForPlayer(2, findLineToColor(2), 1)"
+        v-on:click="colorForPlayer(2, findLineToColor(2))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="3"
-        v-on:click="colorForPlayer(3, findLineToColor(3), 1)"
+        v-on:click="colorForPlayer(3, findLineToColor(3))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="4"
-        v-on:click="colorForPlayer(4, findLineToColor(4), 1)"
+        v-on:click="colorForPlayer(4, findLineToColor(4))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="5"
-        v-on:click="colorForPlayer(5, findLineToColor(5), 1)"
+        v-on:click="colorForPlayer(5, findLineToColor(5))"
         class="buttonClass"
       >
         PLAY
       </button>
       <button
         id="6"
-        v-on:click="colorForPlayer(6, findLineToColor(6), 1)"
+        v-on:click="colorForPlayer(6, findLineToColor(6))"
         class="buttonClass"
       >
         PLAY
@@ -68,6 +68,8 @@ export default {
       renderer: undefined,
       tabWithColorCases: [],
       allCasesNumber: 0,
+      plateauJeu: [],
+      playerName: 1, //1 = rouge 2 = jaune 0 = vide
     };
   },
   methods: {
@@ -88,7 +90,7 @@ export default {
 
       this.scene = new Three.Scene();
       let tile = [];
-      let tab = [];
+      //   let tab = [];
 
       const geometry = new Three.PlaneGeometry(1, 1);
       const viergeCase = new Three.MeshBasicMaterial({
@@ -103,10 +105,10 @@ export default {
       });
       for (let i = 0; i < tailleTabx; i++) {
         let mat = viergeCase;
-        tab[i] = [];
+        this.plateauJeu[i] = [];
         tile[i] = [];
         for (let j = 0; j < tailleTaby; j++) {
-          tab[i][j] = 0;
+          this.plateauJeu[i][j] = 0;
           tile[i][j] = new Three.Mesh(geometry, mat);
           this.scene.add(tile[i][j]);
           //console.log(i + "  " +j)
@@ -123,32 +125,69 @@ export default {
       console.log(this.tabWithColorCases);
     },
     isWine(playerName) {
-      console.log("IS WINE tabWithColorCases", this.tabWithColorCases);
-      //   console.log("IS WINE tab", this.tab);
-
-      //   for (let column = 0; i < 6; column++) {
-      //     for (let i = 0; i < this.tabWithColorCases.length; i++) {
-      //       console.log("IS WINE all", this.tabWithColorCases[i]);
-      //       //[Log] IS WINE all – [[0, 0, 1], [0, 1, 1], [0, 2, 1]] tabWithColorCases
-      //       // playerName === this.tabWithColorCases[i][2] && column === this.tabWithColorCases[i][0]
-      //       if (
-      //         playerName === this.tabWithColorCases[i][2] &&
-      //         playerName === this.tabWithColorCases[i][2]
-      //       ) {
-      //         //check si les 4 case appartiennet au meme joueur et sont sur la meme ligne
-      //         return true;
-      //       }
-      //       //   console.log("IS WINE", this.tabWithColorCases[column])
-      //       //1 4 couleurs sur meme colonne
-      //       //2 4 couleurs sur meme ligne
-      //       //3 4 couleurs sur meme diagonal /
-      //       //4 4 couleurs sur meme diagonal \
-      //     }
-      //   }
-      this.tabWithColorCases;
-      if (this.tabWithColorCases === 4) {
-        return "Victoire pour le joueur " + playerName + " !!";
+      //check colonne
+      for (let column = 0; column < 7; column++) {
+        let caseMemeCouleur = 0;
+        for (let line = 0; line < 6; line++) {
+          if (playerName === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 4) {
+              return true;
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
       }
+      //check ligne
+      for (let line = 0; line < 6; line++) {
+        let caseMemeCouleur = 0;
+        for (let column = 0; column < 7; column++) {
+          if (playerName === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 4) {
+              return true;
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+      //check diagonal type: /
+      for (let line = -1; line < 5; line++) {
+        let caseMemeCouleur = 0;
+        for (let column = -1; column < 6; column++) {
+          let lineAdd = 2 + line + column;
+          if (lineAdd < 7) {
+            let columnAdd = column + 1;
+            if (playerName === this.plateauJeu[lineAdd][columnAdd]) {
+              caseMemeCouleur = caseMemeCouleur + 1;
+              if (caseMemeCouleur === 4) {
+                return true;
+              }
+            } else {
+              caseMemeCouleur = 0;
+            }
+          }
+        }
+      }
+      //check diagonal type: \
+      for (let column = 8; column > 0; column--) {
+        let caseMemeCouleur = 0;
+        for (let line = -1; line < 5; line++) {
+          let lineAdd = line + 1;
+          let columnMinus = column - 2 - line;
+          if (playerName === this.plateauJeu[lineAdd][columnMinus]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 4) {
+              return true;
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+      return false;
     },
     findLineToColor(columnNumber) {
       let tabColorOfcolumn = [];
@@ -158,7 +197,9 @@ export default {
             this.tabWithColorCases[i][1];
         }
         if (tabColorOfcolumn.length == 5) {
-          document.getElementById(columnNumber).setAttribute('disabled','disabled');
+          document
+            .getElementById(columnNumber)
+            .setAttribute("disabled", "disabled");
           document.getElementById(columnNumber).style.borderColor = "#E8E8E8";
         }
       }
@@ -166,30 +207,34 @@ export default {
         ? 0
         : tabColorOfcolumn[tabColorOfcolumn.length - 1] + 1;
     },
-    colorForPlayer(caseToColorX, caseToColorY, playerName) {
-      let color = playerName === 1 ? "#ff1a1a" : "#ffff00";
+    colorForPlayer(caseToColorX, caseToColorY) {
+      let color = this.playerName === 1 ? "#ff1a1a" : "#ffff00";
       let tab = [];
-      tab[0] = [caseToColorX, caseToColorY, playerName];
+      tab[0] = [caseToColorX, caseToColorY, this.playerName];
+      this.plateauJeu[caseToColorY][caseToColorX] = this.playerName;
       this.tabWithColorCases[this.tabWithColorCases.length] = tab[0];
       this.highlightCheckCase(this.scene, caseToColorX, caseToColorY, color);
-      let isWine = this.isWine(playerName);
+      let isWine = this.isWine(this.playerName);
       let allCaseColored = this.allCasesNumber == this.tabWithColorCases.length;
       if (isWine || allCaseColored) {
         for (let columnNumber = 0; columnNumber < 7; columnNumber++) {
-          document.getElementById(columnNumber).setAttribute('disabled','disabled');
+          document
+            .getElementById(columnNumber)
+            .setAttribute("disabled", "disabled");
           document.getElementById(columnNumber).style.borderColor = "#E8E8E8";
         }
         let message = isWine
-          ? "Joueur " + playerName + " Vous avez gagnez !"
+          ? "Joueur " + this.playerName + " Vous avez gagnez !"
           : "Oups ! Match nul...";
         document.getElementById("message").innerHTML = message;
       }
+      this.playerName = this.playerName === 1 ? 2 : 1;
     },
-    algoForIA(tabWithColorCases, playerName) {
-      console.log("Algo");
-      //trouver  les case possible a jouer
-      //chercher la meilleur cas pour ia
-    },
+    // algoForIA(tabWithColorCases, playerName) {
+    //   console.log("Algo");
+    //   //trouver  les case possible a jouer
+    //   //chercher la meilleur cas pour ia
+    // },
     highlightCheckCase(scene, x, y, colortile) {
       const geometry = new Three.PlaneGeometry(0.7, 0.7);
       const mat = new Three.MeshBasicMaterial({
