@@ -22,49 +22,49 @@
     <div id="container">
       <button
         id="0"
-        v-on:click="colorForPlayer(0, findLineToColor(0))"
+        v-on:click="playerTurn(0, findLineToColor(0))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="1"
-        v-on:click="colorForPlayer(1, findLineToColor(1))"
+        v-on:click="playerTurn(1, findLineToColor(1))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="2"
-        v-on:click="colorForPlayer(2, findLineToColor(2))"
+        v-on:click="playerTurn(2, findLineToColor(2))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="3"
-        v-on:click="colorForPlayer(3, findLineToColor(3))"
+        v-on:click="playerTurn(3, findLineToColor(3))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="4"
-        v-on:click="colorForPlayer(4, findLineToColor(4))"
+        v-on:click="playerTurn(4, findLineToColor(4))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="5"
-        v-on:click="colorForPlayer(5, findLineToColor(5))"
+        v-on:click="playerTurn(5, findLineToColor(5))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
       </button>
       <button
         id="6"
-        v-on:click="colorForPlayer(6, findLineToColor(6))"
+        v-on:click="playerTurn(6, findLineToColor(6))"
         class="buttonPlayClass buttonClass"
       >
         PLAY
@@ -154,7 +154,7 @@ export default {
       document.getElementById("6").style.visibility = "visible";
       document.getElementById("7").style.visibility = "hidden";
       document.getElementById("8").style.visibility = "hidden";
-       document.getElementById("player").style.visibility = "visible";
+      document.getElementById("player").style.visibility = "visible";
     },
     isWine(playerName) {
       //check colonne
@@ -258,22 +258,111 @@ export default {
         let message = isWine
           ? "Joueur " + this.playerName + " Vous avez gagnez !"
           : "Oups ! Match nul...";
-          document.getElementById("player").style.visibility = "hidden";
+        document.getElementById("player").style.visibility = "hidden";
         document.getElementById("message").innerHTML = message;
       }
       this.playerName = this.playerName === 1 ? 2 : 1;
       this.playerColor =
         this.playerName === 1 ? "color: Tomato" : "color: Tomato";
+    },
+    playerTurn(caseToColorX, caseToColorY) {
+      this.colorForPlayer(caseToColorX, caseToColorY);
       if (this.optionIa) {
-        console.log("option IA");
         this.algoForIA();
       }
     },
-    // algoForIA(tabWithColorCases, playerName) {
-    //   console.log("Algo");
-    //   //trouver  les case possible a jouer
-    //   //chercher la meilleur cas pour ia
-    // },
+    algoForIA(tabWithColorCases, playerName) {
+      let casesNotToPlay = [];
+
+      let otherPlayerValue = this.playerName === 1 ? 2 : 1;
+      // si personne en 0,3 => joue là
+      if (this.plateauJeu[0][3] === 0) {
+        this.colorForPlayer(3, 0);
+        return;
+      }
+      //si je peux gagner je joue
+
+      // TODO
+      //si il joue en 0,3 et 0,4  => joue en 0,2 ou 0,5
+      if (
+        this.plateauJeu[0][3] === otherPlayerValue &&
+        this.plateauJeu[0][4] === otherPlayerValue
+      ) {
+          if (this.plateauJeu[0][3] === 0) {
+              // avant de jouer check si ya deja quelquun !!!!!!çç!!!!!!!!!
+          }
+        let values = [2, 5];
+        let aleatoireNumber = values[Math.floor(Math.random() * values.length)];
+        this.colorForPlayer(aleatoireNumber, 0);
+        return;
+      }
+      //si il joue en 0,3 et 0,2  => joue en 0,1 ou 0,4
+      if (
+        this.plateauJeu[0][3] === otherPlayerValue &&
+        this.plateauJeu[0][2] === otherPlayerValue
+      ) {
+        let values = [1, 4];
+        let aleatoireNumber = values[Math.floor(Math.random() * values.length)];
+        this.colorForPlayer(aleatoireNumber, 0);
+        return;
+      }
+      //si je peux l'empecher de gagner on l'empeche
+      //check colonne
+      for (let column = 0; column < 7; column++) {
+        let caseMemeCouleur = 0;
+        for (let line = 0; line < 6; line++) {
+          if (otherPlayerValue === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 3) {
+              if (line < 6) {
+                this.colorForPlayer(column, line + 1);
+                return;
+              }
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+      //check lignes
+      for (let line = 0; line < 6; line++) {
+        let caseMemeCouleur = 0;
+        for (let column = 0; column < 7; column++) {
+          if (otherPlayerValue === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            console.log("jai x case pour joueur", caseMemeCouleur, otherPlayerValue);
+            if (caseMemeCouleur === 3) {
+              console.log("jai case rouge", caseMemeCouleur);
+              let caseRigth = this.plateauJeu[line][column + 1];
+              let caseleft = this.plateauJeu[line][column - 3];
+              let caseLeftDown = this.plateauJeu[line - 1][column - 3];
+              let caseRigthDown = this.plateauJeu[line - 1][column + 1];
+               console.log("dr, gch, bgh, bdr", caseRigth, caseleft, caseLeftDown, caseRigthDown);
+              if (caseLeftDown === 0) {
+                casesNotToPlay[casesNotToPlay] = [line - 1, column - 1];
+              }
+              if (caseRigthDown === 0) {
+                casesNotToPlay[casesNotToPlay] = [line + 1, column - 1];
+              }
+              if (caseLeftDown != 0 && caseRigth === 0) {
+                this.colorForPlayer(column - 1, line);
+                return;
+              }
+              if (caseRigthDown != 0 && caseleft === 0) {
+                this.colorForPlayer(column + 1, line);
+                return;
+              }
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+
+      //3 je trouve la cas ou il peut le plus gangé
+      //4 si pls = 1 parmis celle trouvé
+      this.colorForPlayer(0, 0);
+    },
     highlightCheckCase(scene, x, y, colortile) {
       const geometry = new Three.PlaneGeometry(0.7, 0.7);
       const mat = new Three.MeshBasicMaterial({
