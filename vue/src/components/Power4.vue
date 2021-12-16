@@ -374,7 +374,6 @@ export default {
       //check diagonale /
       //check diagonale \
 
-      
       //************************************** */
       //si il joue en 0,3 et 0,4  => joue en 0,2 ou 0,5
       if (
@@ -518,8 +517,87 @@ export default {
         }
       }
 
-      //check diagonale /
-      //check diagonale \
+      //check diagonale / => SI 3 ROUGE => JE JOUE DIAGONAL OU ALORS SI VIDE EN DESSOUS CASE PAS JOUE
+      for (var column = 0; column < this.colonne - 3; column++) {
+        for (var line = 0; line < this.ligne - 3; line++) {
+          //premier cas
+          if (
+            this.plateauJeu[line][column] == otherPlayerValue &&
+            this.plateauJeu[line + 1][column + 1] == otherPlayerValue &&
+            this.plateauJeu[line + 2][column + 2] == otherPlayerValue
+          ) {
+            let caseToPlay = [line + 3, column + 3];
+            let caseDown = [line + 2, column + 3];
+            if (this.plateauJeu[caseDown[0]][caseDown[1]] === 0) {
+              (casesNotToPlay = [caseDown[0]]), [caseDown[1]];
+            } else {
+              console.log("je joue ma diagonal /");
+              this.colorForPlayer(caseToPlay[1], caseToPlay[0]);
+              return;
+            }
+          }
+
+          //deuxieme cas
+          if (
+            this.plateauJeu[line + 1][column + 1] == otherPlayerValue &&
+            this.plateauJeu[line + 2][column + 2] == otherPlayerValue &&
+            this.plateauJeu[line + 3][column + 3] == otherPlayerValue
+          ) {
+            let caseToPlay = [line, column];
+            let caseDown = [line - 1, column];
+            if (this.plateauJeu[caseDown[0]][caseDown[1]] === 0) {
+              (casesNotToPlay = [caseDown[0]]), [caseDown[1]];
+            } else {
+              console.log("je joue ma diagonal /");
+              this.colorForPlayer(caseToPlay[1], caseToPlay[0]);
+              return;
+            }
+          }
+        }
+      }
+      //check diagonal type: \
+      for (var column = 0; column < this.colonne - 3; column++) {
+        for (var line = 3; line < this.ligne; line++) {
+          //premier cas
+          if (
+            this.plateauJeu[line][column] == otherPlayerValue &&
+            this.plateauJeu[line - 1][column + 1] == otherPlayerValue &&
+            this.plateauJeu[line - 2][column + 2] == otherPlayerValue
+          ) {
+            let caseToPlay = [line - 3, column + 3];
+            let caseDown = undefined;
+            if (line > 4) {
+              caseDown = [line - 4, column + 3];
+            }
+            if (
+              caseDown != undefined &&
+              this.plateauJeu[caseDown[0]][caseDown[1]] === 0
+            ) {
+              (casesNotToPlay = [caseDown[0]]), [caseDown[1]];
+            } else if (caseDown != undefined) {
+              console.log("je joue ma diagonal  ");
+              this.colorForPlayer(caseToPlay[1], caseToPlay[0]);
+              return;
+            }
+          }
+          //deuxieme cas
+          if (
+            this.plateauJeu[line - 1][column + 1] == otherPlayerValue &&
+            this.plateauJeu[line - 2][column + 2] == otherPlayerValue &&
+            this.plateauJeu[line - 3][column + 3] == otherPlayerValue
+          ) {
+            let caseToPlay = [line, column];
+            let caseDown = [line - 1, column];
+            if (this.plateauJeu[caseDown[0]][caseDown[1]] === 0) {
+              (casesNotToPlay = [caseDown[0]]), [caseDown[1]];
+            } else {
+              console.log("je joue ma diagonal  ");
+              this.colorForPlayer(caseToPlay[1], caseToPlay[0]);
+              return;
+            }
+          }
+        }
+      }
 
       //case  avecle plus de chance de gagner
       let caseToColor = this.findCaseWithMaxChanceToWin(casesNotToPlay);
