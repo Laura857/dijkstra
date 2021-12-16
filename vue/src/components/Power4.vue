@@ -203,7 +203,6 @@ export default {
             this.plateauJeu[j + 2][i + 2] == playerName &&
             this.plateauJeu[j + 3][i + 3] == playerName
           ) {
-            console.log("gagne par diagonal / ", caseMemeCouleur);
             return true;
           }
         }
@@ -217,7 +216,6 @@ export default {
             this.plateauJeu[j - 2][i + 2] == playerName &&
             this.plateauJeu[j - 3][i + 3] == playerName
           ) {
-            console.log("gagne par diagonal  ", caseMemeCouleur);
             return true;
           }
         }
@@ -232,12 +230,6 @@ export default {
           tabColorOfcolumn[tabColorOfcolumn.length] =
             this.tabWithColorCases[i][1];
         }
-        if (tabColorOfcolumn.length == 5) {
-          document
-            .getElementById(columnNumber)
-            .setAttribute("disabled", "disabled");
-          document.getElementById(columnNumber).style.borderColor = "#E8E8E8";
-        }
       }
       return tabColorOfcolumn.length === 0
         ? 0
@@ -251,6 +243,9 @@ export default {
       this.plateauJeu[caseToColorY][caseToColorX] = this.playerName;
       this.tabWithColorCases[this.tabWithColorCases.length] = tab[0];
       this.highlightCheckCase(this.scene, caseToColorX, caseToColorY, color);
+      //check si toute la colonne est plein
+      this.checkIfColumnIsFull();
+
       console.log("Le plateau de jeux est maintenant = ", this.plateauJeu);
       console.log("jcheck is wine pour le joueur", this.playerName);
       let isWine = this.isWine(this.playerName);
@@ -268,15 +263,45 @@ export default {
           : "Oups ! Match nul...";
         document.getElementById("player").style.visibility = "hidden";
         document.getElementById("message").innerHTML = message;
+        return isWine; //retourne true seulement si gangé (pour arrete IA et le jeux) sinon false ca continue
       }
       this.playerName = this.playerName === 1 ? 2 : 1;
       this.playerColor =
         this.playerName === 1 ? "color: Tomato" : "color: Tomato";
+      return false;
     },
     playerTurn(caseToColorX, caseToColorY) {
-      this.colorForPlayer(caseToColorX, caseToColorY);
-      if (this.optionIa) {
+      let isFinish = this.colorForPlayer(caseToColorX, caseToColorY);
+      if (this.optionIa && !isFinish) {
         this.algoForIA();
+      }
+    },
+    checkIfColumnIsFull() {
+      for (let column = 0; column < this.colonne; column++) {
+        let colorLine = 0;
+        for (let line = 0; line < this.ligne; line++) {
+          if (this.plateauJeu[line][column] != 0) {
+            console.log(
+              "checkIfColumnIsFull je suis coloré ",
+              line,
+              column,
+              this.plateauJeu[line][column]
+            );
+            console.log(
+              "pour la colonne on a x case coloré",
+              column,
+              colorLine
+            );
+            colorLine = colorLine + 1;
+          }
+          if (colorLine === 6) {
+            console.log("je suis full", column);
+            document
+              .getElementById(column)
+              .setAttribute("disabled", "disabled");
+            document.getElementById(column).style.borderColor = "#E8E8E8";
+          }
+        }
       }
     },
     algoForIA() {
@@ -288,8 +313,7 @@ export default {
         this.colorForPlayer(3, 0);
         return;
       }
-      //si je peux gagner je joue
-      //************************************** */ TODO
+      //si je peux gagner je joue quand 3 IA d'affilé
       //check colonne
       for (let column = 0; column < 7; column++) {
         let caseMemeCouleur = 0;
@@ -297,7 +321,7 @@ export default {
           if (this.playerName === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 3) {
-              if (line < 6 && this.plateauJeu[line + 1][column] == 0) {
+              if (line < 5 && this.plateauJeu[line + 1][column] == 0) {
                 this.colorForPlayer(column, line + 1);
                 return;
               }
@@ -308,8 +332,49 @@ export default {
         }
       }
       //check lignes
+      for (let line = 0; line < 6; line++) {
+        let caseMemeCouleur = 0;
+        for (let column = 0; column < 7; column++) {
+          if (this.playerName === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 3) {
+              console.log("JE PEUX GG SUR UNE LIGNE");
+              if (
+                column < 6 &&
+                this.plateauJeu[line][column + 1] == 0 &&
+                this.plateauJeu[line - 1][column + 1] != 0
+              ) {
+                console.log(
+                  "Je check si je peux gg sur une ligne et je colore (colonne, ligne ) : ",
+                  column,
+                  line
+                );
+                this.colorForPlayer(column + 1, line);
+                return;
+              } else if (
+                column < 6 &&
+                this.plateauJeu[line][column - 1] == 0 &&
+                this.plateauJeu[line - 1][column - 1] != 0
+              ) {
+                console.log(
+                  "Je check si je peux gg sur une ligne et je colore (colonne, ligne ) : ",
+                  column,
+                  line
+                );
+                this.colorForPlayer(column - 1, line);
+                return;
+              }
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+
       //check diagonale /
       //check diagonale \
+
+      
       //************************************** */
       //si il joue en 0,3 et 0,4  => joue en 0,2 ou 0,5
       if (
@@ -365,7 +430,7 @@ export default {
           if (otherPlayerValue === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 3) {
-              if (line < 6 && this.plateauJeu[line + 1][column] == 0) {
+              if (line < 5 && this.plateauJeu[line + 1][column] == 0) {
                 this.colorForPlayer(column, line + 1);
                 return;
               }
@@ -401,11 +466,6 @@ export default {
               if (line > 0 && column > 2 && caseLeft != undefined) {
                 let caseLeftDownX = caseLeft[0] - 1;
                 let caseLeftDownY = caseLeft[1];
-                console.log(
-                  "caseLeftDown coordonnée valeur ",
-                  caseLeftDownX,
-                  caseLeftDownY,this.plateauJeu[caseLeftDownX][caseLeftDownY]
-                );
                 if (this.plateauJeu[caseLeftDownX][caseLeftDownY] != 0) {
                   caseLeftDown = [caseLeftDownX, caseLeftDownY];
                 }
@@ -414,36 +474,40 @@ export default {
               if (line > 0 && column < 6 && caseRigth != undefined) {
                 let caseRigthDownX = caseRigth[0] - 1;
                 let caseRigthDownY = caseRigth[1];
-                console.log(
-                  "caseRigthDown coordonnée valeur",
-                  caseRigthDownX,
-                  caseRigthDownY,this.plateauJeu[caseRigthDownX][caseRigthDownY]
-                );
                 if (this.plateauJeu[caseRigthDownX][caseRigthDownY] != 0) {
                   caseRigthDown = [caseRigthDownX, caseRigthDownY];
                 }
                 console.log("final  caseRigthDown= ", caseRigthDown);
               }
 
-
-              if (caseLeftDown !=  undefined) {
+              if (caseLeftDown != undefined) {
                 console.log("ajoute la case bas gch dans pas jouer = ");
-                casesNotToPlay[casesNotToPlay] = [caseLeftDown[0], caseLeftDown[1]];
+                casesNotToPlay[casesNotToPlay] = [
+                  caseLeftDown[0],
+                  caseLeftDown[1],
+                ];
               }
-              if (caseRigthDown !=  undefined) {
+              if (caseRigthDown != undefined) {
                 console.log("ajoute la case bas dr dans pas jouer = ");
-                casesNotToPlay[casesNotToPlay] = [caseRigthDown[0], caseRigthDown[1]];
+                casesNotToPlay[casesNotToPlay] = [
+                  caseRigthDown[0],
+                  caseRigthDown[1],
+                ];
               }
 
-
-
-              if (caseLeftDown != undefined && caseLeft != undefined) {
+              if (
+                caseLeft != undefined &&
+                (caseLeftDown != undefined || caseLeft[0] === 0)
+              ) {
                 console.log("je joue a gch");
                 this.colorForPlayer(caseLeft[1], caseLeft[0]);
                 return;
               }
-              if (caseRigthDown != undefined && caseRigth != undefined) {
-                console.log("jejoue a drt");
+              if (
+                caseRigth != undefined &&
+                (caseRigthDown != undefined || caseRigth[0] === 0)
+              ) {
+                console.log("je joue a drt");
                 this.colorForPlayer(caseRigth[1], caseRigth[0]);
                 return;
               }
@@ -454,10 +518,132 @@ export default {
         }
       }
 
-      //3 je trouve la cas ou il peut le plus gangé
-      //4 si pls = 1 parmis celle trouvé
-      // attention aux c ase casesNotToPlay !!!!
-      this.colorForPlayer(0, 0);
+      //check diagonale /
+      //check diagonale \
+
+      //case  avecle plus de chance de gagner
+      let caseToColor = this.findCaseWithMaxChanceToWin(casesNotToPlay);
+      this.colorForPlayer(caseToColor[1], caseToColor[0]);
+    },
+    findCaseWithMaxChanceToWin(casesNotToPlay) {
+      console.log("start findCaseWithMaxChanceToWin");
+      let allPossibleCases = this.findAllPossibleCases(casesNotToPlay);
+      let casesWithMaxChance = undefined;
+      //***************OK***************
+      for (let i = 0; i < allPossibleCases.length; i++) {
+        //compte le nombre de chance de gagner pour chaque case
+        allPossibleCases[i][2] = this.countChanceToWin(allPossibleCases[i]);
+      }
+      //trouve la case avec le plus de chance de gagner
+      console.log("trouve la case avec le plus de chance de gagner");
+      casesWithMaxChance = allPossibleCases[0];
+      console.log("initial casesWithMaxChance = ", casesWithMaxChance);
+      for (let i = 0; i < allPossibleCases.length; i++) {
+        if (casesWithMaxChance[2] < allPossibleCases[i][2]) {
+          casesWithMaxChance = allPossibleCases[i];
+          console.log("met a jour casesWithMaxChance = ", casesWithMaxChance);
+        }
+      }
+      console.log("case avec le plus de chance =", casesWithMaxChance);
+      return casesWithMaxChance;
+    },
+    countChanceToWin(caseToCount) {
+      let chanceToWin = 0;
+      let caseToCountY = caseToCount[1];
+      let caseToCountX = caseToCount[0];
+      console.log(
+        "countChanceToWin de la case x, y",
+        caseToCountX,
+        caseToCountY
+      );
+      //colonne
+      if (
+        caseToCountX < this.ligne - 3 &&
+        this.plateauJeu[caseToCountX][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX + 1][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX + 2][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX + 3][caseToCountY] == 0
+      ) {
+        chanceToWin = chanceToWin + 1;
+      }
+
+      //ligne
+      if (
+        caseToCountY < 3 &&
+        this.plateauJeu[caseToCountX][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX][caseToCountY + 1] == 0 &&
+        this.plateauJeu[caseToCountX][caseToCountY + 2] == 0 &&
+        this.plateauJeu[caseToCountX][caseToCountY + 3] == 0
+      ) {
+        chanceToWin = chanceToWin + 1;
+      }
+
+      //diagonal / en montant
+      if (
+        caseToCountY <= 3 &&
+        caseToCountX <= 2 &&
+        this.plateauJeu[caseToCountX][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX + 1][caseToCountY + 1] == 0 &&
+        this.plateauJeu[caseToCountX + 2][caseToCountY + 2] == 0 &&
+        this.plateauJeu[caseToCountX + 3][caseToCountY + 3] == 0
+      ) {
+        chanceToWin = chanceToWin + 1;
+      }
+      //diagonal / en descendant TODO
+
+      //diagonal \ en montant
+      if (
+        caseToCountY <= 3 &&
+        caseToCountX >= 3 &&
+        this.plateauJeu[caseToCountX][caseToCountY] == 0 &&
+        this.plateauJeu[caseToCountX - 1][caseToCountY + 1] == 0 &&
+        this.plateauJeu[caseToCountX - 2][caseToCountY + 2] == 0 &&
+        this.plateauJeu[caseToCountX - 3][caseToCountY + 3] == 0
+      ) {
+        chanceToWin = chanceToWin + 1;
+      }
+      //diagonal \ en descendant TODO
+      return chanceToWin;
+    },
+    findAllPossibleCases(casesNotToPlay) {
+      let allPossibleCases = [];
+      for (let column = 0; column < this.colonne; column++) {
+        console.log("findAllPossibleCase PORU LA COLONNE", column);
+        let line = 0;
+        let notFind = true;
+        while (notFind) {
+          console.log(
+            " findAllPossibleCases Line Colonne",
+            line,
+            column,
+            this.plateauJeu[line][column]
+          );
+          if (this.plateauJeu[line][column] === 0) {
+            //&&this.checkCaseFindIsNotInCasesNotToPlay(casesNotToPlay, line, column)
+
+            console.log("case aajouter = et BREAK TO DO ", [line, column]);
+            allPossibleCases[allPossibleCases.length] = [line, column];
+            notFind = false;
+          } else if (line < 5) {
+            line = line + 1;
+            console.log("increment la ligne a ", line);
+          } else {
+            // ou on a pas trouvé = plus de place donc passe colonne apres
+            notFind = false;
+          }
+        }
+      }
+      console.log("toutes les cases possibles", allPossibleCases);
+      return allPossibleCases;
+    },
+    checkCaseFindIsNotInCasesNotToPlay(casesNotToPlay, line, column) {
+      for (let i = 0; i < casesNotToPlay.length; i++) {
+        if (casesNotToPlay[i][0] === line && casesNotToPlay[i][1] === column) {
+          console.log("case parmis celle a ne  pas jouer");
+          return false;
+        }
+      }
+      return true;
     },
     findRigthCase(line, column, otherPlayerValue) {
       let caseRigth = undefined;
