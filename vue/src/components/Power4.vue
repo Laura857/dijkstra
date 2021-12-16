@@ -281,30 +281,73 @@ export default {
         return;
       }
       //si je peux gagner je joue
-
-      // TODO
+       //************************************** */ TODO
+      //check colonne
+      for (let column = 0; column < 7; column++) {
+        let caseMemeCouleur = 0;
+        for (let line = 0; line < 6; line++) {
+          if (playerName === this.plateauJeu[line][column]) {
+            caseMemeCouleur = caseMemeCouleur + 1;
+            if (caseMemeCouleur === 3) {
+              if (line < 6 && this.plateauJeu[line + 1][column] == 0) {
+                this.colorForPlayer(column, line + 1);
+                return;
+              }
+            }
+          } else {
+            caseMemeCouleur = 0;
+          }
+        }
+      }
+      //check lignes
+      //check diagonale /
+      //check diagonale \
+      //************************************** */
       //si il joue en 0,3 et 0,4  => joue en 0,2 ou 0,5
       if (
         this.plateauJeu[0][3] === otherPlayerValue &&
         this.plateauJeu[0][4] === otherPlayerValue
       ) {
-          if (this.plateauJeu[0][3] === 0) {
-              // avant de jouer check si ya deja quelquun !!!!!!çç!!!!!!!!!
-          }
-        let values = [2, 5];
-        let aleatoireNumber = values[Math.floor(Math.random() * values.length)];
-        this.colorForPlayer(aleatoireNumber, 0);
-        return;
+        let values = [];
+        if (this.plateauJeu[0][2] === 0) {
+          values[values.length] = 2;
+        }
+        if (this.plateauJeu[0][5] === 0) {
+          values[values.length] = 5;
+        }
+        if (values.length == 1) {
+          this.colorForPlayer(values[0], 0);
+          return;
+        }
+        if (values.length > 1) {
+          let aleatoireNumber =
+            values[Math.floor(Math.random() * values.length)];
+          this.colorForPlayer(aleatoireNumber, 0);
+          return;
+        }
       }
       //si il joue en 0,3 et 0,2  => joue en 0,1 ou 0,4
       if (
         this.plateauJeu[0][3] === otherPlayerValue &&
         this.plateauJeu[0][2] === otherPlayerValue
       ) {
-        let values = [1, 4];
-        let aleatoireNumber = values[Math.floor(Math.random() * values.length)];
-        this.colorForPlayer(aleatoireNumber, 0);
-        return;
+        let values = [];
+        if (this.plateauJeu[0][1] === 0) {
+          values[values.length] = 1;
+        }
+        if (this.plateauJeu[0][4] === 0) {
+          values[values.length] = 4;
+        }
+        if (values.length == 1) {
+          this.colorForPlayer(values[0], 0);
+          return;
+        }
+        if (values.length > 1) {
+          let aleatoireNumber =
+            values[Math.floor(Math.random() * values.length)];
+          this.colorForPlayer(aleatoireNumber, 0);
+          return;
+        }
       }
       //si je peux l'empecher de gagner on l'empeche
       //check colonne
@@ -314,7 +357,7 @@ export default {
           if (otherPlayerValue === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 3) {
-              if (line < 6) {
+              if (line < 6 && this.plateauJeu[line + 1][column] == 0) {
                 this.colorForPlayer(column, line + 1);
                 return;
               }
@@ -330,14 +373,24 @@ export default {
         for (let column = 0; column < 7; column++) {
           if (otherPlayerValue === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
-            console.log("jai x case pour joueur", caseMemeCouleur, otherPlayerValue);
+            console.log(
+              "jai x case pour joueur",
+              caseMemeCouleur,
+              otherPlayerValue
+            );
             if (caseMemeCouleur === 3) {
-              console.log("jai case rouge", caseMemeCouleur);
+              console.log("jai x case rouge = ", caseMemeCouleur);
               let caseRigth = this.plateauJeu[line][column + 1];
               let caseleft = this.plateauJeu[line][column - 3];
               let caseLeftDown = this.plateauJeu[line - 1][column - 3];
               let caseRigthDown = this.plateauJeu[line - 1][column + 1];
-               console.log("dr, gch, bgh, bdr", caseRigth, caseleft, caseLeftDown, caseRigthDown);
+              console.log(
+                "dr, gch, bgh, bdr",
+                caseRigth,
+                caseleft,
+                caseLeftDown,
+                caseRigthDown
+              );
               if (caseLeftDown === 0) {
                 casesNotToPlay[casesNotToPlay] = [line - 1, column - 1];
               }
@@ -345,7 +398,7 @@ export default {
                 casesNotToPlay[casesNotToPlay] = [line + 1, column - 1];
               }
               if (caseLeftDown != 0 && caseRigth === 0) {
-                this.colorForPlayer(column - 1, line);
+                this.colorForPlayer(column - 3, line);
                 return;
               }
               if (caseRigthDown != 0 && caseleft === 0) {
