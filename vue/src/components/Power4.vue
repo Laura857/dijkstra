@@ -1,6 +1,11 @@
 <template>
   <div id="all">
-    <h1>Puissance 4</h1>
+    <div class="title">
+      <h1 style="margin-right: 20px">Puissance 4</h1>
+      <button id="refresh" v-on:click="refresh()" class="buttonClass">
+        Refresh
+      </button>
+    </div>
     <p id="message" class="messageFinal"></p>
     <div id="player">
       <p v-if="1 === this.playerName">
@@ -304,6 +309,9 @@ export default {
         }
       }
     },
+    refresh(){
+      location.reload();
+    },
     algoForIA() {
       let casesNotToPlay = [];
 
@@ -377,8 +385,8 @@ export default {
           //premier cas
           if (
             this.plateauJeu[line][column] == this.playerName &&
-            this.plateauJeu[line + 1][column + 1] == this.playerName  &&
-            this.plateauJeu[line + 2][column + 2] == this.playerName 
+            this.plateauJeu[line + 1][column + 1] == this.playerName &&
+            this.plateauJeu[line + 2][column + 2] == this.playerName
           ) {
             let caseToPlay = [line + 3, column + 3];
             let caseDown = [line + 2, column + 3];
@@ -391,9 +399,9 @@ export default {
 
           //deuxieme cas
           if (
-            this.plateauJeu[line + 1][column + 1] == this.playerName  &&
-            this.plateauJeu[line + 2][column + 2] == this.playerName  &&
-            this.plateauJeu[line + 3][column + 3] == this.playerName 
+            this.plateauJeu[line + 1][column + 1] == this.playerName &&
+            this.plateauJeu[line + 2][column + 2] == this.playerName &&
+            this.plateauJeu[line + 3][column + 3] == this.playerName
           ) {
             let caseToPlay = [line, column];
             let caseDown = [line - 1, column];
@@ -406,8 +414,7 @@ export default {
         }
       }
 
-
-     //check diagonal type: \
+      //check diagonal type: \
       for (var column = 0; column < this.colonne - 3; column++) {
         for (var line = 3; line < this.ligne; line++) {
           //premier cas
@@ -873,5 +880,10 @@ export default {
 }
 #player {
   visibility: hidden;
+}
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
