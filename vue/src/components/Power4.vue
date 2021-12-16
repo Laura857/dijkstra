@@ -89,6 +89,8 @@ export default {
       playerName: 1, //1 = rouge 2 = jaune 0 = vide
       optionIa: undefined,
       playerColor: undefined,
+      ligne: 6,
+      colonne: 7,
     };
   },
   methods: {
@@ -109,7 +111,6 @@ export default {
 
       this.scene = new Three.Scene();
       let tile = [];
-      //   let tab = [];
 
       const geometry = new Three.PlaneGeometry(1, 1);
       const viergeCase = new Three.MeshBasicMaterial({
@@ -124,10 +125,8 @@ export default {
       });
       for (let i = 0; i < tailleTabx; i++) {
         let mat = viergeCase;
-        this.plateauJeu[i] = [];
         tile[i] = [];
         for (let j = 0; j < tailleTaby; j++) {
-          this.plateauJeu[i][j] = 0;
           tile[i][j] = new Three.Mesh(geometry, mat);
           this.scene.add(tile[i][j]);
           //console.log(i + "  " +j)
@@ -135,6 +134,14 @@ export default {
           tile[i][j].position.y = j;
         }
       }
+      for (let line = 0; line < tailleTaby; line++) {
+        this.plateauJeu[line] = [];
+        for (let colulmn = 0; colulmn < tailleTabx; colulmn++) {
+          this.plateauJeu[line][colulmn] = 0;
+        }
+      }
+      console.log("INIT plateau jeu ", this.plateauJeu);
+
       //------------------------------------------------------------------------------------------------------------------
       this.renderer = new Three.WebGLRenderer({ antialias: true });
       this.renderer.setSize(container.clientWidth, container.clientHeight);
@@ -164,6 +171,7 @@ export default {
           if (playerName === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 4) {
+              console.log("gagne par colonne", caseMemeCouleur);
               return true;
             }
           } else {
@@ -178,6 +186,7 @@ export default {
           if (playerName === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 4) {
+              console.log("gagne par ligne", caseMemeCouleur);
               return true;
             }
           } else {
@@ -186,39 +195,34 @@ export default {
         }
       }
       //check diagonal type: /
-      for (let line = -1; line < 5; line++) {
-        let caseMemeCouleur = 0;
-        for (let column = -1; column < 6; column++) {
-          let lineAdd = 2 + line + column;
-          if (lineAdd < 7) {
-            let columnAdd = column + 1;
-            if (playerName === this.plateauJeu[lineAdd][columnAdd]) {
-              caseMemeCouleur = caseMemeCouleur + 1;
-              if (caseMemeCouleur === 4) {
-                return true;
-              }
-            } else {
-              caseMemeCouleur = 0;
-            }
+      for (var i = 0; i < this.colonne - 3; i++) {
+        for (var j = 0; j < this.ligne - 3; j++) {
+          if (
+            this.plateauJeu[j][i] == playerName &&
+            this.plateauJeu[j + 1][i + 1] == playerName &&
+            this.plateauJeu[j + 2][i + 2] == playerName &&
+            this.plateauJeu[j + 3][i + 3] == playerName
+          ) {
+            console.log("gagne par diagonal / ", caseMemeCouleur);
+            return true;
           }
         }
       }
       //check diagonal type: \
-      for (let column = 8; column > 0; column--) {
-        let caseMemeCouleur = 0;
-        for (let line = -1; line < 5; line++) {
-          let lineAdd = line + 1;
-          let columnMinus = column - 2 - line;
-          if (playerName === this.plateauJeu[lineAdd][columnMinus]) {
-            caseMemeCouleur = caseMemeCouleur + 1;
-            if (caseMemeCouleur === 4) {
-              return true;
-            }
-          } else {
-            caseMemeCouleur = 0;
+      for (var i = 0; i < this.colonne - 3; i++) {
+        for (var j = 3; j < this.ligne; j++) {
+          if (
+            this.plateauJeu[j][i] == playerName &&
+            this.plateauJeu[j - 1][i + 1] == playerName &&
+            this.plateauJeu[j - 2][i + 2] == playerName &&
+            this.plateauJeu[j - 3][i + 3] == playerName
+          ) {
+            console.log("gagne par diagonal  ", caseMemeCouleur);
+            return true;
           }
         }
       }
+      console.log("pas encore gagné ");
       return false;
     },
     findLineToColor(columnNumber) {
@@ -243,10 +247,14 @@ export default {
       let color = this.playerName === 1 ? "#ff1a1a" : "#ffff00";
       let tab = [];
       tab[0] = [caseToColorX, caseToColorY, this.playerName];
+      console.log("je colore la case y, x  ", caseToColorY, caseToColorX);
       this.plateauJeu[caseToColorY][caseToColorX] = this.playerName;
       this.tabWithColorCases[this.tabWithColorCases.length] = tab[0];
       this.highlightCheckCase(this.scene, caseToColorX, caseToColorY, color);
+      console.log("Le plateau de jeux est maintenant = ", this.plateauJeu);
+      console.log("jcheck is wine pour le joueur", this.playerName);
       let isWine = this.isWine(this.playerName);
+      console.log("resultat de is wine", isWine);
       let allCaseColored = this.allCasesNumber == this.tabWithColorCases.length;
       if (isWine || allCaseColored) {
         for (let columnNumber = 0; columnNumber < 7; columnNumber++) {
@@ -271,7 +279,7 @@ export default {
         this.algoForIA();
       }
     },
-    algoForIA(tabWithColorCases, playerName) {
+    algoForIA() {
       let casesNotToPlay = [];
 
       let otherPlayerValue = this.playerName === 1 ? 2 : 1;
@@ -281,12 +289,12 @@ export default {
         return;
       }
       //si je peux gagner je joue
-       //************************************** */ TODO
+      //************************************** */ TODO
       //check colonne
       for (let column = 0; column < 7; column++) {
         let caseMemeCouleur = 0;
         for (let line = 0; line < 6; line++) {
-          if (playerName === this.plateauJeu[line][column]) {
+          if (this.playerName === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
             if (caseMemeCouleur === 3) {
               if (line < 6 && this.plateauJeu[line + 1][column] == 0) {
@@ -373,36 +381,70 @@ export default {
         for (let column = 0; column < 7; column++) {
           if (otherPlayerValue === this.plateauJeu[line][column]) {
             caseMemeCouleur = caseMemeCouleur + 1;
-            console.log(
-              "jai x case pour joueur",
-              caseMemeCouleur,
-              otherPlayerValue
-            );
-            if (caseMemeCouleur === 3) {
-              console.log("jai x case rouge = ", caseMemeCouleur);
-              let caseRigth = this.plateauJeu[line][column + 1];
-              let caseleft = this.plateauJeu[line][column - 3];
-              let caseLeftDown = this.plateauJeu[line - 1][column - 3];
-              let caseRigthDown = this.plateauJeu[line - 1][column + 1];
-              console.log(
-                "dr, gch, bgh, bdr",
-                caseRigth,
-                caseleft,
-                caseLeftDown,
-                caseRigthDown
-              );
-              if (caseLeftDown === 0) {
-                casesNotToPlay[casesNotToPlay] = [line - 1, column - 1];
+            if (caseMemeCouleur === 2) {
+              let caseRigth = undefined;
+              let caseLeft = undefined;
+              let caseRigthDown = undefined;
+              let caseLeftDown = undefined;
+
+              if (column < 6) {
+                caseRigth = this.findRigthCase(line, column, otherPlayerValue);
               }
-              if (caseRigthDown === 0) {
-                casesNotToPlay[casesNotToPlay] = [line + 1, column - 1];
+              if (column >= 2) {
+                caseLeft = this.findLeftCase(
+                  line,
+                  column - 1,
+                  otherPlayerValue
+                );
               }
-              if (caseLeftDown != 0 && caseRigth === 0) {
-                this.colorForPlayer(column - 3, line);
+
+              if (line > 0 && column > 2 && caseLeft != undefined) {
+                let caseLeftDownX = caseLeft[0] - 1;
+                let caseLeftDownY = caseLeft[1];
+                console.log(
+                  "caseLeftDown coordonnée valeur ",
+                  caseLeftDownX,
+                  caseLeftDownY,this.plateauJeu[caseLeftDownX][caseLeftDownY]
+                );
+                if (this.plateauJeu[caseLeftDownX][caseLeftDownY] != 0) {
+                  caseLeftDown = [caseLeftDownX, caseLeftDownY];
+                }
+                console.log("final  caseLeftDown= ", caseLeftDown);
+              }
+              if (line > 0 && column < 6 && caseRigth != undefined) {
+                let caseRigthDownX = caseRigth[0] - 1;
+                let caseRigthDownY = caseRigth[1];
+                console.log(
+                  "caseRigthDown coordonnée valeur",
+                  caseRigthDownX,
+                  caseRigthDownY,this.plateauJeu[caseRigthDownX][caseRigthDownY]
+                );
+                if (this.plateauJeu[caseRigthDownX][caseRigthDownY] != 0) {
+                  caseRigthDown = [caseRigthDownX, caseRigthDownY];
+                }
+                console.log("final  caseRigthDown= ", caseRigthDown);
+              }
+
+
+              if (caseLeftDown !=  undefined) {
+                console.log("ajoute la case bas gch dans pas jouer = ");
+                casesNotToPlay[casesNotToPlay] = [caseLeftDown[0], caseLeftDown[1]];
+              }
+              if (caseRigthDown !=  undefined) {
+                console.log("ajoute la case bas dr dans pas jouer = ");
+                casesNotToPlay[casesNotToPlay] = [caseRigthDown[0], caseRigthDown[1]];
+              }
+
+
+
+              if (caseLeftDown != undefined && caseLeft != undefined) {
+                console.log("je joue a gch");
+                this.colorForPlayer(caseLeft[1], caseLeft[0]);
                 return;
               }
-              if (caseRigthDown != 0 && caseleft === 0) {
-                this.colorForPlayer(column + 1, line);
+              if (caseRigthDown != undefined && caseRigth != undefined) {
+                console.log("jejoue a drt");
+                this.colorForPlayer(caseRigth[1], caseRigth[0]);
                 return;
               }
             }
@@ -414,7 +456,40 @@ export default {
 
       //3 je trouve la cas ou il peut le plus gangé
       //4 si pls = 1 parmis celle trouvé
+      // attention aux c ase casesNotToPlay !!!!
       this.colorForPlayer(0, 0);
+    },
+    findRigthCase(line, column, otherPlayerValue) {
+      let caseRigth = undefined;
+      column = column + 1;
+      let caseValueToCheck = this.plateauJeu[line][column];
+      if (column <= 6) {
+        if (caseValueToCheck === 0) {
+          // si celle de droite est vide on la prend
+          caseRigth = [line, column];
+        } else if (caseValueToCheck === otherPlayerValue) {
+          // si celle de droite appartient à l'autre joueur on regarde celle encore a  droite
+          caseRigth = this.findRigthCase(line, column, otherPlayerValue);
+        }
+      }
+      console.log("caseRigth = ", caseRigth);
+      return caseRigth;
+    },
+    findLeftCase(line, column, otherPlayerValue) {
+      let caseLeft = undefined;
+      column = column - 1;
+      let caseValueToCheck = this.plateauJeu[line][column];
+      if (column >= 0) {
+        if (caseValueToCheck === 0) {
+          // si celle de gauche est vide on la prend
+          caseLeft = [line, column];
+        } else if (caseValueToCheck === otherPlayerValue) {
+          // si celle de gauche appartient à l'autre joueur on regarde celle encore a gauche
+          caseLeft = this.findLeftCase(line, column, otherPlayerValue);
+        }
+      }
+      console.log("caseLeft = ", caseLeft);
+      return caseLeft;
     },
     highlightCheckCase(scene, x, y, colortile) {
       const geometry = new Three.PlaneGeometry(0.7, 0.7);
